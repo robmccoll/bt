@@ -6,7 +6,8 @@
 #include <termios.h>
 
 double
-time_now() {
+time_now()
+{
   struct timespec tp;
   clock_gettime(CLOCK_MONOTONIC, &tp);
 
@@ -16,7 +17,8 @@ time_now() {
 }
 
 double
-time_since_replace(double * time) {
+time_since_replace(double * time)
+{
   double new = time_now();
   double out = new - *time;
   *time = new;
@@ -24,7 +26,26 @@ time_since_replace(double * time) {
   return out;
 }
 
-int main(int argc, char *argv[])
+int
+cmp_end(const char * hst_beg, const char * hst_end,
+        const char * ndl_beg, const char * ndl_end)
+{
+  if((hst_end - hst_beg) < (ndl_end - ndl_beg)) {
+    return 0;
+  }
+
+  int i = -1;
+  for(; ndl_end + i >= ndl_beg; i--) {
+    if(hst_end[i] != ndl_end[i]) {
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+int
+main(int argc, char *argv[])
 {
   if(argc > 1 && (
       (0 == strcmp(argv[1], "-?")) ||
@@ -52,6 +73,12 @@ int main(int argc, char *argv[])
     string = argv[1];
   }
 
+  char * string_end = string;
+
+  while(string_end[0] != '\0') {
+    string_end++;
+  }
+
   /* disable buffer on stdin */
   struct termios old_tio, new_tio;
   tcgetattr(STDIN_FILENO,&old_tio);
@@ -69,7 +96,7 @@ int main(int argc, char *argv[])
     inbuf[inbuf_stop++] = getchar();
     inbuf[inbuf_stop] = '\0';
 
-    if(strstr(inbuf, string)) {
+    if(cmp_end(inbuf, inbuf + inbuf_stop, string, string_end)) {
       printf("%lf\n", time_since_replace(&last_time));
       inbuf_stop = 0;
     }
