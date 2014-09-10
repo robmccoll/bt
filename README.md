@@ -14,7 +14,7 @@ POSIX.1-2001).
 
 Usage
 -----
-bt <string>
+    bt <string>
 
 If the string is not given, "\n" is used.
 Note that bt disables buffering of stdin and operates one
